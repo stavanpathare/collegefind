@@ -19,7 +19,7 @@
 - 📱 Mobile-friendly layout
 
 ## 📸 Screenshots
-![Homepage Screenshot](Assets/screenshot1.png)  
-![Filter Feature](Assets/screenshot2.png)
+![Homepage Screenshot](Assets/Screenshot1.png)  
+![Filter Feature](Assets/Screentshot2.png)
 
 
