@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>College Finder</title>
+  <link rel="icon" type="image/png" href="assets/College.png">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <form id="form">
+    <input type="number" id="percentile" placeholder="Enter percentile" required />
+    <input type="text" id="college" placeholder="College name (optional)" />
+
+    <select id="branch">
+      <option value="">Select Branch</option>
+      <option value="Computer Science and Engineering">Computer Science and Engineering</option>
+      <option value="Information Technology">Information Technology</option>
+      <option value="Artificial Intelligence and Data Science">Artificial Intelligence and Data Science</option>
+      <option value="Artificial Intelligence and Machine Learning">Artificial Intelligence and Machine Learning</option>
+      <option value="Electronics and Telecommunication Engg">Electronics and Telecommunication Engg</option>
+      <option value="Electrical Engineering">Electrical Engineering</option>
+      <option value="Electrical Engg[Electronics and Power]">Electrical Engg[Electronics and Power]</option>
+      <option value="Electronics Engineering">Electronics Engineering</option>
+      <option value="Instrumentation Engineering">Instrumentation Engineering</option>
+      <option value="Mechanical Engineering">Mechanical Engineering</option>
+      <option value="Civil Engineering">Civil Engineering</option>
+      <option value="Food Technology">Food Technology</option>
+      <option value="Oil and Paints Technology">Oil and Paints Technology</option>
+      <option value="Paper and Pulp Technology">Paper and Pulp Technology</option>
+      <option value="Petro Chemical Engineering">Petro Chemical Engineering</option>
+      <option value="Computer Engineering">Computer Engineering</option>
+      <option value="Computer Science and Engineering (IoT)">Computer Science and Engineering (IoT)</option>
+    </select>
+
+    <input type="text" id="city" placeholder="City (optional)" />
+
+    
+
+    <button type="submit">Search</button>
+    <a href="Assets/2024 MH CAP Round 1 cutoff.pdf" target="_blank" class="btn">Download Official CutOff PDF</a>
+  </form>
+
+  <div id="results"></div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const form = document.getElementById('form');
+      const resultsDiv = document.getElementById('results');
+
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const percentile = parseFloat(document.getElementById('percentile').value);
+        const branch = document.getElementById('branch').value.trim().toLowerCase();
+        const city = document.getElementById('city').value.trim().toLowerCase();
+        const college = document.getElementById('college').value.trim().toLowerCase();
+        
+
+        try {
+          const response = await fetch('Assets/colleges.json');
+          if (!response.ok) throw new Error('Could not load college data.');
+
+          const colleges = await response.json();
+
+          const filtered = colleges.filter(c => {
+            const matchPercentile = c.percentile >= percentile - 5 && c.percentile <= percentile + 5;
+            const matchBranch = !branch || c.branch.toLowerCase().includes(branch);
+            const matchCity = !city || c.city.toLowerCase().includes(city);
+            const matchCollege = !college || c.college.toLowerCase().includes(college);
+            return matchPercentile && matchBranch && matchCity && matchCollege;
+          });
+
+          showResults(filtered);
+        } catch (err) {
+          console.error(err);
+          resultsDiv.innerHTML = '<p>Error loading college data.</p>';
+        }
+      });
+
+      function showResults(colleges) {
+        resultsDiv.innerHTML = '';
+
+        if (colleges.length === 0) {
+          resultsDiv.innerHTML = '<p>No colleges found matching your criteria.</p>';
+          return;
+        }
+
+        colleges.forEach(c => {
+          const div = document.createElement('div');
+          div.innerHTML = `
+            <strong>${c.college}</strong><br>
+            Branch: ${c.branch}<br>
+            Percentile: ${c.percentile}%<br>
+            City: ${c.city}<hr>
+          `;
+          resultsDiv.appendChild(div);
+        });
+      }
+    });
+  </script>
+
+</body>
+</html>
+
