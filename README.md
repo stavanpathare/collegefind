@@ -20,6 +20,6 @@
 
 ## 📸 Screenshots
 ![Homepage Screenshot](Assets/Screenshot1.png)  
-![Filter Feature](Assets/Screentshot2.png)
+![Filter Feature](Assets/Screenshot2.png)
 
 
