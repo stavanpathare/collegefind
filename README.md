@@ -17,6 +17,7 @@
 - ⚡ Super fast and responsive design
 - 📊 Supports real 2024 cutoff data
 - 📱 Mobile-friendly layout
+- Colleges with percentile ≤ your score
 
 ## 📸 Screenshots
 ![Homepage Screenshot](Assets/Screenshot1.png)  
