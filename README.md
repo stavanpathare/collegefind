@@ -10,7 +10,7 @@
 - CSS3
 - JavaScript
 - JSON (for cutoff data)
-- Hosted on Netlify
+- Hosted on Vercel
 
 ## 🚀 Features
 - 🎯 Search for engineering colleges using MHT-CET percentile
