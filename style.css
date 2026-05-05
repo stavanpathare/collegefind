@@ -124,7 +124,7 @@ header {
 
 .filter-toggle {
   display: none; /* visible only on mobile */
-  width: 10%;
+  width: 20%;
   padding: 14px 16px;
   border-radius: 12px;
   border: none;
