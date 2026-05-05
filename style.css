@@ -1,109 +1,290 @@
-/* Base Styling */
-body {
+/* RESET */
+* {
   margin: 0;
   padding: 0;
-  font-family: 'Segoe UI', sans-serif;
-  background: linear-gradient(to right, #f5f7fa, #c3cfe2);
-  min-height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  padding-top: 40px;
-  color: #333;
-}
-
-/* Form Card */
-form {
-  background: #fff;
-  max-width: 600px;
-  width: 100%;
-  padding: 24px;
-  border-radius: 16px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-}
-
-/* Form Elements */
-form input,
-form select,
-form button {
-  width: 100%;
-  padding: 14px;
-  margin-bottom: 15px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  font-size: 16px;
   box-sizing: border-box;
+  font-family: "Segoe UI", sans-serif;
 }
 
-form button {
-  background-color: #007bff;
+body {
+  background: #f4f6fb;
+}
+
+/* HEADER */
+header {
+  background: linear-gradient(135deg, #4f46e5, #7c3aed);
   color: white;
-  font-weight: bold;
-  border: none;
-  cursor: pointer;
-  transition: background 0.3s ease;
-}
-
-form button:hover {
-  background-color: #0056b3;
-}
-
-/* Results Container */
-#results {
-  max-width: 600px;
-  width: 100%;
-  background: #ffffffee;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-  margin-top: 20px;
   padding: 20px;
-  border-radius: 16px;
-  transition: all 0.3s ease;
-  opacity: 1;
-}
-#results:empty {
-  opacity: 0;
+  text-align: center;
 }
 
-/* Individual College Result */
-#results div {
-  margin-bottom: 20px;
-  padding-bottom: 12px;
-  border-bottom: 1px solid #eee;
-  line-height: 1.6;
+/* MAIN */
+.main {
+  display: flex;
+  gap: 20px;
+  padding: 15px;
 }
 
-.btn{
-  background-color: #007bff;
+/* FILTER PANEL */
+.filters {
+  display: block;
+  width: 260px;
+  background: white;
+  padding: 15px;
+  border-radius: 12px;
+  height: fit-content;
+  position: sticky;
+  top: 20px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.filters input,
+.filters select,
+.filters button {
+  width: 100%;
+  margin-bottom: 10px;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  font-size: 14px;
+}
+
+.filters button {
+  background: #4f46e5;
   color: white;
-  font-weight: bold;
   border: none;
   cursor: pointer;
-  transition: background 0.3s ease;
-  width: 100%;
-  padding: 14px;
-  margin-bottom: 15px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
+}
+
+/* RESULTS */
+.results {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 15px;
+}
+
+/* CARD */
+.card {
+  background: white;
+  padding: 15px;
+  border-radius: 12px;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+}
+
+.card h3 {
+  font-size: 15px;
+  margin-bottom: 6px;
+}
+
+.card p {
+  font-size: 13px;
+  margin: 2px 0;
+}
+
+.percentile {
+  margin-top: 8px;
+  font-weight: bold;
+  color: #4f46e5;
+}
+
+.download-btn {
+  display: inline-block;
+  text-decoration: none;
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+  color: white;
+  padding: 12px 18px;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 600;
+  transition: all 0.25s ease;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+/* Hover */
+.download-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(0,0,0,0.2);
+  background: linear-gradient(135deg, #16a34a, #15803d);
+}
+
+/* Click */
+.download-btn:active {
+  transform: scale(0.97);
+}
+
+/* Mobile full width */
+@media (max-width: 768px) {
+  .download-btn {
+    display: block;
+    width: 100%;
+    text-align: center;
+  }
+}
+
+.filter-toggle {
+  display: none; /* visible only on mobile */
+  width: 10%;
+  padding: 14px 16px;
+  border-radius: 12px;
+  border: none;
+
+  background: linear-gradient(135deg, #4f46e5, #6366f1);
+  color: white;
+
+  font-size: 15px;
+  font-weight: 600;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+  transition: all 0.25s ease;
+
+  cursor: pointer;
+}
+
+/* Icon */
+.filter-toggle .icon {
   font-size: 16px;
-  box-sizing: border-box;
 }
-.btn:hover{
-  background-color: #0056b3;
+
+/* Hover */
+.filter-toggle:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(79, 70, 229, 0.4);
 }
-/* Mobile Responsive */
+
+/* Click */
+.filter-toggle:active {
+  transform: scale(0.97);
+}
+
+/* Mobile only */
 @media (max-width: 600px) {
-  body {
-    padding: 20px;
+  .filter-toggle {
+    display: flex;
+  }
+}
+/* ========================= */
+/* 📱 MOBILE RESPONSIVE */
+/* ========================= */
+
+/* ========================= */
+/* 📱 TABLET (<=1000px) */
+/* ========================= */
+
+@media (max-width: 1000px) {
+
+  .main {
+    flex-direction: column;
+    padding: 10px;
   }
 
-  form, #results {
-    padding: 16px;
+  /* Filters become top bar (NOT hidden) */
+  .filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    width: 100%;
+    position: static;
   }
 
-  form input,
-  form select,
-  form button {
-    font-size: 15px;
-    padding: 12px;
+  .filters input,
+  .filters select,
+  .filters button {
+    flex: 1 1 calc(50% - 10px);
+  }
+
+  .results {
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  }
+}
+
+/* ========================= */
+/* 📱 MOBILE (<=600px) */
+/* ========================= */
+
+@media (max-width: 600px) {
+
+  /* Show toggle button */
+  .filter-toggle {
+    display: block;
+  }
+
+  /* Hide filters */
+  .filters {
+    display: none;
+    flex-direction: column;
+  }
+
+  /* Active state */
+  .filters.active {
+    display: flex;
+    animation: slideDown 0.3s ease;
+  }
+
+  .filters input,
+  .filters select,
+  .filters button {
+    width: 100%;
+  }
+
+  .results {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Animation */
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}@media (max-width: 1000px) {
+
+  .main {
+    flex-direction: column;
+    padding: 10px;
+  }
+
+  /* Toggle button visible */
+  .filter-toggle {
+    display: block;
+  }
+
+  /* Filters hidden by default */
+  .filters {
+    display: none;
+    width: 100%;
+    position: static;
+  }
+
+  /* When active */
+  .filters.active {
+    display: block;
+    animation: slideDown 0.3s ease;
+  }
+
+  /* Animation (smooth feel) */
+  @keyframes slideDown {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .results {
+    grid-template-columns: 1fr;
   }
 }
