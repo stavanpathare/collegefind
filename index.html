@@ -2,103 +2,53 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Campus Lost and Found</title>
-  <link rel="icon" type="image/png" href="assets/icons/school.png">
-  <link rel="stylesheet" href="css/style.css" />
-  <link rel="stylesheet" href="css/home.css" />
-  <link rel="stylesheet" href="css/responsive.css" />
+  <title>College Finder</title>
+  <link rel="icon" type="imgae/png" href="Assets/College.png">
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div class="page-shell">
-    <header class="site-header">
-      <nav class="navbar">
-        <a href="index.html" class="brand">Campus Lost & Found</a>
-        <div class="nav-links" id="mainNav">
-          <a href="index.html">Home</a>
-          <a href="add-item.html">Add Item</a>
-        </div>
-        <div class="nav-actions" id="nav-auth">
-          <a href="login.html">Login</a>
-          <a href="register.html">Register</a>
-        </div>
-        <button type="button" class="nav-toggle" id="navToggle" aria-label="Toggle navigation">☰</button>
-      </nav>
-    </header>
 
-    <main class="page-content">
-      <section class="hero hero-home">
-        <div class="hero-copy">
-          <span class="eyebrow">Campus Portal</span>
-          <h1>Find lost belongings or help a classmate recover their items.</h1>
-          <p>Search found items, submit a new report, and connect directly with the owner in a sleek college-style dashboard.</p>
-          <div class="hero-actions">
-            <a href="add-item.html" class="btn btn-primary">Report Found Item</a>
-            <a href="profile.html" class="btn btn-secondary">Your Profile</a>
-          </div>
-        </div>
-        <div class="hero-visual">
-          <div class="hero-card">
-            <div class="hero-card-top">Latest Reports</div>
-            <div class="hero-card-content">
-              <p><strong>Textbook</strong> found at <strong>Campus Library</strong></p>
-              <p class="muted">Easy contact and updated daily.</p>
-            </div>
-          </div>
-        </div>
-      </section>
+  <header>
+    <h1>CET College Predictor</h1>
+    <p>Find colleges based on your percentile</p>
+  </header>
 
-      <section class="search-panel">
-        <div class="search-group">
-          <label for="searchInput" class="sr-only">Search items</label>
-          <input id="searchInput" type="search" placeholder="Search by keyword, location, or category" autocomplete="off" />
-        </div>
-        <div class="filter-group">
-          <label for="categoryFilter" class="sr-only">Filter category</label>
-          <select id="categoryFilter">
-            <option value="all">All categories</option>
-            <option value="electronics">Electronics</option>
-            <option value="books">Books</option>
-            <option value="keys">Keys</option>
-            <option value="accessories">Accessories</option>
-            <option value="other">Other</option>
-          </select>
-        </div>
-      </section>
+  <button class="filter-toggle" onclick="toggleFilters()">
+  <span class="icon">☰</span>
+  <span>Filters</span>
+</button>
+  <div class="main">
+    
+    <!-- Filters -->
+    <div class="filters">
+      <input type="number" id="percentile" placeholder="Enter Percentile" />
 
-      <section class="recent-section">
-        <div class="section-header">
-          <h2>Recent Found Items</h2>
-          <p>Review the latest campus discoveries and reach out quickly.</p>
-        </div>
-        <div id="recentItems" class="recent-grid"></div>
-      </section>
+      <input type="text" id="collegeSearch" placeholder="Search College Name" />
 
-      <section class="items-section">
-        <div class="section-header">
-          <h2>Available Items</h2>
-          <p>Browse current found items, filter the list, and view details.</p>
-        </div>
-        <div id="itemsGrid" class="card-grid"></div>
-        <div id="emptyState" class="empty-state hidden">
-          <h3>No items found</h3>
-          <p>Try a different search term or category to discover more.</p>
-          <a href="add-item.html" class="btn btn-primary">Report an Item</a>
-        </div>
-      </section>
-    </main>
+      <select id="course"></select>
+      <select id="district"></select>
+      <select id="category"></select>
+      <select id="gender"></select>
 
-    <footer class="site-footer">
-      <div>
-        <p>&copy; 2026 Campus Lost and Found. Built for campus communities.</p>
-      </div>
-    </footer>
+      <button onclick="filterData()">Search</button>
+      <a href="Assets/cet 2025.pdf" class="download-btn" download>
+        ⬇ Download PDF
+      </a>
+    </div>
+
+    <!-- Results -->
+    <div id="results" class="results"></div>
+
   </div>
 
-  <div id="toastContainer" class="toast-container"></div>
-  <div id="globalLoader" class="loader-overlay hidden"><div class="loader"></div></div>
+  <!-- College Details Modal -->
+  <div id="collegeModal" class="modal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <div id="modalBody"></div>
+    </div>
+  </div>
 
-  <script type="module" src="js/auth.js"></script>
-  <script type="module" src="js/app.js"></script>
+  <script src="college.js"></script>
 </body>
 </html>
