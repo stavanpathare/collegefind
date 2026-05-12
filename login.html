@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login | Campus Lost and Found</title>
+  <link rel="icon" type="image/png" href="assets/icons/school.png">
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/home.css" />
+  <link rel="stylesheet" href="css/auth.css" />
+  <link rel="stylesheet" href="css/responsive.css" />
+</head>
+<body>
+  <div class="page-shell auth-shell">
+    <header class="site-header">
+      <nav class="navbar">
+        <a href="index.html" class="brand">Campus Lost & Found</a>
+        <div class="nav-links" id="mainNav"></div>
+        <div class="nav-actions" id="nav-auth">
+          <a href="login.html">Login</a>
+          <a href="register.html">Register</a>
+        </div>
+        <button type="button" class="nav-toggle" id="navToggle" aria-label="Toggle navigation">☰</button>
+      </nav>
+    </header>
+
+    <main class="auth-card card-shadow">
+      <div class="auth-intro">
+        <span class="eyebrow">Welcome back</span>
+        <h1>Login to your account</h1>
+        <p>Access the campus lost and found dashboard, submit items, and contact item owners.</p>
+      </div>
+
+      <form id="loginForm" class="auth-form">
+        <div class="form-group">
+          <label for="email">Email address</label>
+          <input id="email" name="email" type="email" placeholder="you@college.edu" required />
+        </div>
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input id="password" name="password" type="password" placeholder="Enter your password" required />
+        </div>
+        <div id="formMessage" class="form-message"></div>
+        <button type="submit" class="btn btn-primary btn-block">Login</button>
+      </form>
+
+      <p class="form-footer">New to the portal? <a href="register.html">Create an account</a></p>
+    </main>
+
+    <footer class="site-footer auth-footer">
+      <p>&copy; 2026 Campus Lost and Found</p>
+    </footer>
+  </div>
+
+  <div id="toastContainer" class="toast-container"></div>
+  <div id="globalLoader" class="loader-overlay hidden"><div class="loader"></div></div>
+
+  <script type="module" src="js/auth.js"></script>
+  <script type="module" src="js/login.js"></script>
+</body>
+</html>

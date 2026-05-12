@@ -1,0 +1,81 @@
+@media (max-width: 1080px) {
+  .hero-home {
+    grid-template-columns: 1fr;
+  }
+
+  .search-panel {
+    grid-template-columns: 1fr;
+  }
+
+  .card-grid,
+  .recent-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 760px) {
+  .navbar {
+    flex-wrap: wrap;
+    justify-content: space-between;
+  }
+
+  .nav-links,
+  .nav-actions {
+    width: 100%;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 0.75rem;
+    display: none;
+  }
+
+  .nav-toggle {
+    display: block;
+  }
+
+  .nav-links.nav-open,
+  .nav-actions.nav-open {
+    display: flex;
+  }
+
+  .hero-home {
+    padding: 1.5rem;
+  }
+
+  .card-grid,
+  .recent-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .details-hero {
+    min-height: 240px;
+  }
+
+  .auth-card {
+    margin: 1.5rem 1rem;
+    padding: 1.5rem;
+  }
+
+  .site-footer,
+  .navbar,
+  .auth-footer {
+    padding: 1rem;
+  }
+}
+
+@media (max-width: 520px) {
+  .navbar,
+  .hero-home,
+  .search-panel,
+  .details-shell,
+  .profile-card {
+    padding: 0 1rem;
+  }
+
+  .hero-copy h1 {
+    font-size: 2rem;
+  }
+
+  .item-card-actions {
+    justify-content: stretch;
+  }
+}

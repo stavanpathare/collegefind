@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Register | Campus Lost and Found</title>
+  <link rel="icon" type="image/png" href="assets/icons/school.png">
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/home.css" />
+  <link rel="stylesheet" href="css/auth.css" />
+  <link rel="stylesheet" href="css/responsive.css" />
+</head>
+<body>
+  <div class="page-shell auth-shell">
+    <header class="site-header">
+      <nav class="navbar">
+        <a href="index.html" class="brand">Campus Lost & Found</a>
+        <div class="nav-links" id="mainNav"></div>
+        <div class="nav-actions" id="nav-auth">
+          <a href="login.html">Login</a>
+          <a href="register.html">Register</a>
+        </div>
+        <button type="button" class="nav-toggle" id="navToggle" aria-label="Toggle navigation">☰</button>
+      </nav>
+    </header>
+
+    <main class="auth-card card-shadow">
+      <div class="auth-intro">
+        <span class="eyebrow">Join the community</span>
+        <h1>Create your account</h1>
+        <p>Register to report found items, manage your profile, and help classmates recover belongings.</p>
+      </div>
+
+      <form id="registerForm" class="auth-form">
+        <div class="form-group">
+          <label for="name">Full name</label>
+          <input id="name" name="name" type="text" placeholder="Jane Doe" required />
+        </div>
+        <div class="form-group">
+          <label for="email">College email</label>
+          <input id="email" name="email" type="email" placeholder="you@college.edu" required />
+        </div>
+        <div class="form-group">
+          <label for="phone">Phone number</label>
+          <input id="phone" name="phone" type="tel" placeholder="(123) 456-7890" required />
+        </div>
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input id="password" name="password" type="password" placeholder="Create a password" required minlength="6" />
+        </div>
+        <div id="formMessage" class="form-message"></div>
+        <button type="submit" class="btn btn-primary btn-block">Register</button>
+      </form>
+
+      <p class="form-footer">Already registered? <a href="login.html">Login here</a></p>
+    </main>
+
+    <footer class="site-footer auth-footer">
+      <p>&copy; 2026 Campus Lost and Found</p>
+    </footer>
+  </div>
+
+  <div id="toastContainer" class="toast-container"></div>
+  <div id="globalLoader" class="loader-overlay hidden"><div class="loader"></div></div>
+
+  <script type="module" src="js/auth.js"></script>
+  <script type="module" src="js/register.js"></script>
+</body>
+</html>

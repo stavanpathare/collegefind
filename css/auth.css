@@ -1,0 +1,128 @@
+.auth-shell {
+  min-height: 100vh;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  background: var(--bg);
+}
+
+.auth-card {
+  max-width: 680px;
+  margin: 2.5rem auto;
+  padding: 2.25rem;
+  background: var(--surface);
+}
+
+.auth-intro {
+  margin-bottom: 2rem;
+}
+
+.auth-intro .eyebrow {
+  display: inline-flex;
+  margin-bottom: 0.75rem;
+  font-size: 0.9rem;
+  color: var(--secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+
+.auth-intro h1 {
+  margin: 0 0 0.85rem;
+  font-size: clamp(2rem, 2.5vw, 2.6rem);
+}
+
+.auth-intro p {
+  margin: 0;
+  color: var(--text-muted);
+  line-height: 1.75;
+}
+
+.auth-form {
+  display: grid;
+  gap: 1rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.form-group label {
+  font-size: 0.95rem;
+  color: var(--text-muted);
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+  width: 100%;
+  background: var(--surface-strong);
+  border: 1px solid rgba(33, 80, 160, 0.14);
+  border-radius: 14px;
+  padding: 1rem 1.1rem;
+  color: var(--text);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 4px rgba(33, 80, 160, 0.08);
+}
+
+.form-group textarea {
+  min-height: 140px;
+  resize: vertical;
+}
+
+.image-preview {
+  min-height: 170px;
+  border-radius: 16px;
+  background: var(--surface-strong);
+  border: 1px dashed rgba(33, 80, 160, 0.2);
+  padding: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  text-align: center;
+  background-size: cover;
+  background-position: center;
+}
+.form-message {
+  color: #d63447;
+  min-height: 1.25rem;
+}
+
+.form-footer {
+  margin-top: 1rem;
+  text-align: center;
+  color: var(--text-muted);
+}
+
+.form-footer a {
+  color: var(--primary);
+  font-weight: 600;
+}
+
+.half-width {
+  width: 100%;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+@media (max-width: 760px) {
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+.auth-footer {
+  margin-top: 1rem;
+}
