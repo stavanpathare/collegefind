@@ -80,32 +80,89 @@ function populateFilters() {
 // Filter Logic
 // -------------------------
 function filterData() {
-  const percentile = parseFloat(document.getElementById("percentile").value);
+
+  // -------------------------
+  // Get Input Values
+  // -------------------------
+  const percentileInput = document.getElementById("percentile").value;
+
+  const percentile = percentileInput
+    ? parseFloat(percentileInput)
+    : null;
+
   const collegeSearch = document.getElementById("collegeSearch").value;
-  const course = normalize(document.getElementById("course").value);
-  const district = normalize(document.getElementById("district").value);
-  const category = document.getElementById("category").value;
-  const gender = document.getElementById("gender").value;
 
-  const normalizedSearch = normalizeCollege(collegeSearch);
+  const course = normalize(
+    document.getElementById("course").value
+  );
 
+  const district = normalize(
+    document.getElementById("district").value
+  );
+
+  const category =
+    document.getElementById("category").value;
+
+  const gender =
+    document.getElementById("gender").value;
+
+  const normalizedSearch =
+    normalizeCollege(collegeSearch);
+
+  // -------------------------
+  // Filter Data
+  // -------------------------
   let results = data.filter(item => {
+
+    // Convert percentile safely
+    const itemPercentile = Number(item.percentile);
+
+    // Percentile Logic
+    let percentileMatch = true;
+
+    if (percentile !== null && !isNaN(percentile)) {
+
+      // Example:
+      // Input 90
+      // Shows 91 down to 75
+      percentileMatch =
+        itemPercentile <= percentile + 1 &&
+        itemPercentile >= Math.max(0, percentile - 15);
+    }
+
     return (
-      (isNaN(percentile) || ( item.percentile <= percentile + 1 && item.percentile >= percentile - 15)) &&
-      (!collegeSearch || item.normalizedCollege.includes(normalizedSearch)) &&
-      (!course || item.course.includes(course)) &&
-      (!district || item.district.includes(district)) &&
-      (!category || item.category === category) &&
-      (!gender || item.gender === gender)
+      percentileMatch &&
+
+      (!collegeSearch ||
+        item.normalizedCollege.includes(normalizedSearch)) &&
+
+      (!course ||
+        item.course.includes(course)) &&
+
+      (!district ||
+        item.district.includes(district)) &&
+
+      (!category ||
+        item.category === category) &&
+
+      (!gender ||
+        item.gender === gender)
     );
   });
 
-  // Sort by highest percentile (better UX)
+  // -------------------------
+  // Sort Highest to Lowest
+  // -------------------------
   results.sort((a, b) => b.percentile - a.percentile);
 
-  // Limit results (performance)
-  results = results.slice(0, 50);
+  // -------------------------
+  // Limit Results
+  // -------------------------
+  results = results.slice(0, 100);
 
+  // -------------------------
+  // Display
+  // -------------------------
   displayResults(results);
 }
 
