@@ -91,7 +91,7 @@ function filterData() {
 
   let results = data.filter(item => {
     return (
-      (isNaN(percentile) || (item.percentile >= percentile && item.percentile < percentile + 1)) &&
+      (isNaN(percentile) || ( item.percentile <= percentile + 1 && item.percentile >= percentile - 15)) &&
       (!collegeSearch || item.normalizedCollege.includes(normalizedSearch)) &&
       (!course || item.course.includes(course)) &&
       (!district || item.district.includes(district)) &&
