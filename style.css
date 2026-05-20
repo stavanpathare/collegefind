@@ -497,3 +497,17 @@ tbody tr:hover {
     padding: 6px 8px;
   }
 }
+
+.footer {
+  padding: 40px 20px;
+  background: #0b0b0b;
+  color: #ffffff;
+  text-align: center;
+  border-top: 1px solid #222;
+}
+
+.footer-content p {
+  color: #aaa;
+  margin-bottom: 8px;
+}
+
