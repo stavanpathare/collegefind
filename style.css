@@ -506,6 +506,10 @@ tbody tr:hover {
   border-top: 1px solid #222;
 }
 
+.title {
+ color: #fff;
+}
+
 .footer-content p {
   color: #aaa;
   margin-bottom: 8px;
