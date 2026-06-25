@@ -102,7 +102,7 @@ Passionate Computer Science student and web developer focused on building useful
 
 ### Connect With Me
 
-* Portfolio: https://stavanprofile.netlify.app
+* Portfolio: https://stavanlabs.is-a.dev
 * GitHub: https://github.com/stavanpathare
 
 ---
