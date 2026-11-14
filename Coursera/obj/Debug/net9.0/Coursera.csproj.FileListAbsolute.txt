@@ -1,0 +1,14 @@
+C:\Users\Rajkamal Pathare\OneDrive\Desktop\VS code\Coursera\obj\Debug\net9.0\Coursera.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Rajkamal Pathare\OneDrive\Desktop\VS code\Coursera\obj\Debug\net9.0\Coursera.AssemblyInfoInputs.cache
+C:\Users\Rajkamal Pathare\OneDrive\Desktop\VS code\Coursera\obj\Debug\net9.0\Coursera.AssemblyInfo.cs
+C:\Users\Rajkamal Pathare\OneDrive\Desktop\VS code\Coursera\obj\Debug\net9.0\Coursera.csproj.CoreCompileInputs.cache
+C:\Users\Rajkamal Pathare\OneDrive\Desktop\VS code\Coursera\bin\Debug\net9.0\Coursera.exe
+C:\Users\Rajkamal Pathare\OneDrive\Desktop\VS code\Coursera\bin\Debug\net9.0\Coursera.deps.json
+C:\Users\Rajkamal Pathare\OneDrive\Desktop\VS code\Coursera\bin\Debug\net9.0\Coursera.runtimeconfig.json
+C:\Users\Rajkamal Pathare\OneDrive\Desktop\VS code\Coursera\bin\Debug\net9.0\Coursera.dll
+C:\Users\Rajkamal Pathare\OneDrive\Desktop\VS code\Coursera\bin\Debug\net9.0\Coursera.pdb
+C:\Users\Rajkamal Pathare\OneDrive\Desktop\VS code\Coursera\obj\Debug\net9.0\Coursera.dll
+C:\Users\Rajkamal Pathare\OneDrive\Desktop\VS code\Coursera\obj\Debug\net9.0\refint\Coursera.dll
+C:\Users\Rajkamal Pathare\OneDrive\Desktop\VS code\Coursera\obj\Debug\net9.0\Coursera.pdb
+C:\Users\Rajkamal Pathare\OneDrive\Desktop\VS code\Coursera\obj\Debug\net9.0\Coursera.genruntimeconfig.cache
+C:\Users\Rajkamal Pathare\OneDrive\Desktop\VS code\Coursera\obj\Debug\net9.0\ref\Coursera.dll
