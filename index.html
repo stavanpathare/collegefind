@@ -15,7 +15,9 @@
 <meta property="og:url" content="https://collegefind.netlify.app/" />
 <meta property="og:image" content="https://collegefind.netlify.app/College.png" />
 <meta name="twitter:card" content="summary_large_image" />
-<meta name="theme-color" content="#f5f6f8" />
+<meta name="theme-color" content="#f5f6f8" media="(prefers-color-scheme: light)" />
+<meta name="theme-color" content="#0f1318" media="(prefers-color-scheme: dark)" />
+<meta name="color-scheme" content="light dark" />
 <link rel="icon" type="image/png" href="Assets/College.png" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -28,9 +30,12 @@
   <p>Find engineering colleges in Maharashtra using 2026 CAP Round 1 cutoffs. Enter your percentile, then narrow by branch, district and category.</p>
 </header>
 
-<button class="filter-toggle" onclick="toggleFilters()" aria-controls="filters">
-  <span class="icon">☰</span><span>Filters</span>
-</button>
+<div class="toolbar">
+  <button class="filter-toggle" onclick="toggleFilters()" aria-controls="filters">
+    <span class="icon">☰</span><span>Filters</span>
+  </button>
+  <button class="shortlist-btn" onclick="openShortlist()">♥ Shortlist <span id="shortCount">0</span></button>
+</div>
 
 <main class="main">
   <aside class="filters" id="filters">
@@ -38,11 +43,18 @@
       <input type="number" id="percentile" placeholder="e.g. 92.5" step="0.01" inputmode="decimal" />
     </label>
     <input type="text" id="collegeSearch" placeholder="College name (optional)" />
+    <select id="branch" aria-label="Branch"></select>
     <select id="course" aria-label="Course"></select>
     <select id="district" aria-label="District"></select>
     <select id="category" aria-label="Category"></select>
     <select id="gender" aria-label="Gender"></select>
+    <select id="sort" aria-label="Sort results">
+      <option value="high">Highest cutoff first</option>
+      <option value="low">Lowest cutoff first</option>
+      <option value="az">College name A–Z</option>
+    </select>
     <button class="search-btn" onclick="filterData()">Search colleges</button>
+    <button class="ghost-btn" onclick="copySearchLink()">Copy search link</button>
     <a href="Assets/2026ENGG_CAP1_MH_CutOff_V1.pdf" class="download-btn" download>Download cutoff PDF</a>
   </aside>
 
@@ -61,6 +73,8 @@
 <footer class="footer">
   <p>&copy; 2026 Created by <a href="http://stavanlabs.is-a.dev" class="stavan-labs" target="_blank" rel="noopener">Stavan Labs</a>. All rights reserved.</p>
 </footer>
+
+<div id="printArea"></div>
 
 <script src="college.js"></script>
 </body>

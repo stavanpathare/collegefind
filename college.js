@@ -5,8 +5,26 @@ let activeCourse = '';
 
 const GENDER_LABEL = { Gents: 'Gents', Ladies: 'Ladies', G_PWD: 'PWD', G_DEF: 'Defence', G_OF: 'Orphan' };
 const SEAT_LABEL = { HOME: 'Home University', OTHER: 'Other University', STATE: 'State Level' };
-const FIELD_LABEL = { course: 'All courses', district: 'All districts', category: 'All categories', gender: 'All genders' };
+const FIELD_LABEL = { branch: 'All branches', course: 'All courses', district: 'All districts', category: 'All categories', gender: 'All genders' };
 const canHover = window.matchMedia('(hover: hover)').matches;
+
+// Branch families, checked in order against the lowercase course name
+const BRANCHES = [
+  ['Computer & IT', /^(computer|cloud|cyber|information technology|internet of things|industrial iot)/],
+  ['AI & Data Science', /^(artificial intelligence|data science)/],
+  ['Robotics & Automation', /^(robotics|automation|mechatronics)/],
+  ['Electronics & Telecom', /^electronics/],
+  ['Electrical & Instrumentation', /^(electrical|instrumentation)/],
+  ['Mechanical & Production', /^(mechanical|production|manufacturing|automobile|aeronautical)/],
+  ['Civil & Structural', /^(civil|structural)/],
+  ['Textile & Fashion', /(textile|^fashion|^fibres|^man made)/],
+  ['Chemical, Petro & Polymer', /^(chemical|petro|oil|paint|dyestuff|surface coating|plastic|polymer|paper|printing|pharma)/],
+  ['Food, Bio & Agriculture', /^(food|bio|agricultural)/],
+  ['Metallurgy & Mining', /^(metallurg|mining)/]
+];
+const OTHER_BRANCH = 'Other Engineering';
+const branchOf = c => (BRANCHES.find(([, re]) => re.test(c)) || [OTHER_BRANCH])[0];
+const BRANCH_ORDER = [...BRANCHES.map(b => b[0]), OTHER_BRANCH];
 
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const capitalize = s => s.replace(/\b\w/g, c => c.toUpperCase());
@@ -28,12 +46,14 @@ async function loadData() {
     data = (await res.json()).map(item => ({
       ...item,
       course: normalize(item.course),
+      branch: branchOf(normalize(item.course)),
       district: normalize(item.district),
       category: item.category.trim(),
       gender: item.gender.trim(),
       normalizedCollege: normalizeCollege(item.college_name)
     }));
     populateFilters();
+    applyUrl();
   } catch (e) {
     document.getElementById('results').innerHTML =
       '<p class="empty">Cutoff data could not be loaded. Check that Assets/data_2026.json exists, then reload.</p>';
@@ -48,54 +68,130 @@ function populateSelect(id, values) {
     values.map(v => `<option value="${esc(v)}">${esc(id === 'gender' ? gLabel(v) : id === 'category' ? v : capitalize(v))}</option>`).join('');
 }
 
+function populateBranches() {
+  const counts = {};
+  data.forEach(i => { (counts[i.branch] = counts[i.branch] || new Set()).add(i.course); });
+  const sel = document.getElementById('branch');
+  sel.innerHTML = `<option value="">${FIELD_LABEL.branch}</option>` +
+    BRANCH_ORDER.filter(b => counts[b]).map(b => `<option value="${esc(b)}">${esc(b)} (${counts[b].size})</option>`).join('');
+}
+
+// Course list follows the chosen branch; with no branch it is grouped by branch
+function populateCourses() {
+  const branch = document.getElementById('branch').value;
+  const sel = document.getElementById('course');
+  const opt = c => `<option value="${esc(c)}">${esc(capitalize(c))}</option>`;
+  let html = `<option value="">${FIELD_LABEL.course}</option>`;
+  if (branch) {
+    html += getUnique('course').filter(c => branchOf(c) === branch).map(opt).join('');
+  } else {
+    BRANCH_ORDER.forEach(b => {
+      const list = getUnique('course').filter(c => branchOf(c) === b);
+      if (list.length) html += `<optgroup label="${esc(b)}">${list.map(opt).join('')}</optgroup>`;
+    });
+  }
+  sel.innerHTML = html;
+}
+
 function populateFilters() {
-  ['course', 'district', 'category', 'gender'].forEach(id => populateSelect(id, getUnique(id)));
+  populateBranches();
+  populateCourses();
+  ['district', 'category', 'gender'].forEach(id => populateSelect(id, getUnique(id)));
 }
 
 // -------------------------
 // Filter logic (unchanged behaviour)
 // -------------------------
-function filterData() {
-  const pInput = document.getElementById('percentile').value;
-  const percentile = pInput ? parseFloat(pInput) : null;
-  const search = normalizeCollege(document.getElementById('collegeSearch').value);
-  const course = normalize(document.getElementById('course').value);
-  const district = normalize(document.getElementById('district').value);
-  const category = document.getElementById('category').value;
-  const gender = document.getElementById('gender').value;
+const PAGE = 24;
+let lastResults = [], shown = 0;
+let shortlist = [];
+try { shortlist = JSON.parse(localStorage.getItem('cf_shortlist') || '[]'); } catch (e) {}
 
-  let results = data.filter(item => {
+const entryKey = it => [it.college_name, it.course, it.category, it.gender, it.seat_type].join('|');
+const isSaved = it => shortlist.some(s => s.k === entryKey(it));
+const gv = id => document.getElementById(id).value;
+
+function toast(msg) {
+  const t = document.createElement('div');
+  t.className = 'toast'; t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 1900);
+}
+
+// ----- Filters <-> URL -----
+function readFilters() {
+  return { p: gv('percentile'), q: gv('collegeSearch'), branch: gv('branch'), course: gv('course'),
+    district: gv('district'), category: gv('category'), gender: gv('gender'), sort: gv('sort') };
+}
+function writeUrl(f) {
+  const u = new URLSearchParams();
+  Object.entries(f).forEach(([k, v]) => { if (v && !(k === 'sort' && v === 'high')) u.set(k, v); });
+  const qs = u.toString();
+  try { history.replaceState(null, '', qs ? '?' + qs : location.pathname); } catch (e) {}
+}
+function applyUrl() {
+  const u = new URLSearchParams(location.search);
+  if (![...u.keys()].length) return;
+  const set = (id, v) => { if (v != null) document.getElementById(id).value = v; };
+  set('percentile', u.get('p')); set('collegeSearch', u.get('q')); set('branch', u.get('branch'));
+  populateCourses();
+  set('course', u.get('course')); set('district', u.get('district'));
+  set('category', u.get('category')); set('gender', u.get('gender')); set('sort', u.get('sort') || 'high');
+  filterData(true);
+}
+function copySearchLink() {
+  writeUrl(readFilters());
+  const done = () => toast('Search link copied');
+  if (navigator.clipboard) navigator.clipboard.writeText(location.href).then(done, () => prompt('Copy this link', location.href));
+  else prompt('Copy this link', location.href);
+}
+
+// ----- Filter, sort, paginate -----
+function filterData(fromUrl) {
+  const f = readFilters();
+  const percentile = f.p ? parseFloat(f.p) : null;
+  const search = normalizeCollege(f.q), course = normalize(f.course), district = normalize(f.district);
+
+  const results = data.filter(item => {
     const p = Number(item.percentile);
     const pMatch = percentile === null || isNaN(percentile) ||
       (p <= percentile + 1 && p >= Math.max(0, percentile - 15));
     return pMatch &&
       (!search || item.normalizedCollege.includes(search)) &&
-      (!course || item.course.includes(course)) &&
+      (!f.branch || item.branch === f.branch) &&
+      (!course || item.course === course) &&
       (!district || item.district.includes(district)) &&
-      (!category || item.category === category) &&
-      (!gender || item.gender === gender);
+      (!f.category || item.category === f.category) &&
+      (!f.gender || item.gender === f.gender);
   });
 
-  results.sort((a, b) => b.percentile - a.percentile);
-  displayResults(results.slice(0, 100));
+  const sorters = {
+    high: (a, b) => b.percentile - a.percentile,
+    low: (a, b) => a.percentile - b.percentile,
+    az: (a, b) => a.college_name.localeCompare(b.college_name) || b.percentile - a.percentile
+  };
+  results.sort(sorters[f.sort] || sorters.high);
+  lastResults = results; shown = 0;
+  writeUrl(f);
 
-  if (window.innerWidth <= 1000) {
-    document.querySelector('.filters').classList.remove('active');
-    document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }
-}
-
-// -------------------------
-// Results
-// -------------------------
-function displayResults(results) {
   const box = document.getElementById('results');
   if (!results.length) {
     box.innerHTML = '<p class="empty">No colleges matched. Try a wider district or course, or lower the percentile.</p>';
     return;
   }
-  box.innerHTML = results.map((it, i) => `
+  box.innerHTML = `<p class="count">${results.length} matching entries</p><button class="more" id="moreBtn"></button>`;
+  renderBatch();
+
+  if (fromUrl !== true && window.innerWidth <= 1000) {
+    document.querySelector('.filters').classList.remove('active');
+    box.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+}
+
+function cardHtml(it, i) {
+  return `
     <article class="card" style="--i:${Math.min(i, 14)}" data-college="${esc(it.college_name)}" tabindex="0">
+      <button class="heart ${isSaved(it) ? 'on' : ''}" data-key="${esc(entryKey(it))}" aria-label="Save to shortlist" aria-pressed="${isSaved(it)}">♥</button>
       <h3>${esc(it.college_name)}</h3>
       <p class="course">${esc(capitalize(it.course))}</p>
       <p class="loc">${esc(capitalize(it.district))}</p>
@@ -105,12 +201,31 @@ function displayResults(results) {
         <span class="chip">${esc(SEAT_LABEL[it.seat_type] || it.seat_type)}</span>
       </div>
       <div class="percentile">Cutoff <b>${it.percentile}</b></div>
-    </article>`).join('');
+    </article>`;
+}
 
-  box.querySelectorAll('.card').forEach(card => {
+function renderBatch() {
+  const box = document.getElementById('results'), more = document.getElementById('moreBtn');
+  const batch = lastResults.slice(shown, shown + PAGE);
+  more.insertAdjacentHTML('beforebegin', batch.map(cardHtml).join(''));
+  const cards = [...box.querySelectorAll('.card')].slice(shown);
+  shown += batch.length;
+  bindCards(cards);
+  const left = lastResults.length - shown;
+  more.style.display = left > 0 ? '' : 'none';
+  more.textContent = `Show ${Math.min(PAGE, left)} more (${left} left)`;
+  more.onclick = renderBatch;
+}
+
+function bindCards(cards) {
+  cards.forEach(card => {
     const open = () => openCollegeModal(card.dataset.college);
-    card.addEventListener('click', open);
-    card.addEventListener('keydown', e => { if (e.key === 'Enter') open(); });
+    card.addEventListener('click', e => {
+      const heart = e.target.closest('.heart');
+      if (heart) { toggleSave(heart.dataset.key); return; }
+      open();
+    });
+    card.addEventListener('keydown', e => { if (e.key === 'Enter' && e.target === card) open(); });
     if (canHover) {
       card.addEventListener('pointermove', e => {
         const r = card.getBoundingClientRect();
@@ -119,6 +234,80 @@ function displayResults(results) {
       });
     }
   });
+}
+
+// ----- Shortlist -----
+function persistShortlist() {
+  try { localStorage.setItem('cf_shortlist', JSON.stringify(shortlist)); } catch (e) {}
+  document.getElementById('shortCount').textContent = shortlist.length;
+  document.querySelectorAll('.heart').forEach(b => {
+    const on = shortlist.some(s => s.k === b.dataset.key);
+    b.classList.toggle('on', on); b.setAttribute('aria-pressed', on);
+  });
+}
+function toggleSave(key) {
+  const i = shortlist.findIndex(s => s.k === key);
+  if (i >= 0) { shortlist.splice(i, 1); }
+  else {
+    const it = lastResults.find(x => entryKey(x) === key);
+    if (!it) return;
+    shortlist.push({ k: key, college_name: it.college_name, course: it.course, district: it.district,
+      category: it.category, gender: it.gender, seat_type: it.seat_type, percentile: it.percentile });
+    toast('Saved to shortlist');
+  }
+  persistShortlist();
+}
+const shortLine = s => `${s.college_name} - ${capitalize(s.course)} (${s.category}, ${gLabel(s.gender)}, ${SEAT_LABEL[s.seat_type] || s.seat_type}) cutoff ${s.percentile}`;
+const shortText = () => 'My college shortlist (MHT CET 2026 Round 1 cutoffs)\n' +
+  shortlist.map((s, i) => `${i + 1}. ${shortLine(s)}`).join('\n') + '\n' + location.origin + location.pathname;
+
+function openShortlist() {
+  const body = document.getElementById('modalBody');
+  if (!shortlist.length) {
+    body.innerHTML = '<div class="modal-section"><h2>Your shortlist</h2><p>Nothing saved yet. Tap the heart on any card to add it here.</p></div>';
+  } else {
+    body.innerHTML = `
+      <div class="modal-section"><h2>Your shortlist</h2>
+        <p>Order colleges by preference, then share or print them as a helper for your CAP option form.</p>
+        <ol class="short-list">${shortlist.map((s, i) => `
+          <li><span>${i + 1}.</span>
+            <div class="info"><b>${esc(s.college_name)}</b>${esc(capitalize(s.course))} · ${esc(s.category)} · ${esc(gLabel(s.gender))} · ${esc(SEAT_LABEL[s.seat_type] || s.seat_type)} · cutoff ${s.percentile}</div>
+            <button data-act="up" data-i="${i}" aria-label="Move up">↑</button>
+            <button data-act="down" data-i="${i}" aria-label="Move down">↓</button>
+            <button data-act="del" data-i="${i}" aria-label="Remove">✕</button>
+          </li>`).join('')}</ol>
+        <div class="short-actions">
+          <button class="wa" data-act="wa">Share on WhatsApp</button>
+          <button data-act="copy">Copy list</button>
+          <button data-act="print">Print</button>
+        </div>
+      </div>`;
+  }
+  document.getElementById('collegeModal').style.display = 'block';
+  document.body.style.overflow = 'hidden';
+}
+
+function shortlistAction(e) {
+  const b = e.target.closest('button[data-act]');
+  if (!b) return;
+  const act = b.dataset.act, i = +b.dataset.i;
+  if (act === 'up' && i > 0) [shortlist[i - 1], shortlist[i]] = [shortlist[i], shortlist[i - 1]];
+  else if (act === 'down' && i < shortlist.length - 1) [shortlist[i + 1], shortlist[i]] = [shortlist[i], shortlist[i + 1]];
+  else if (act === 'del') shortlist.splice(i, 1);
+  else if (act === 'wa') { window.open('https://wa.me/?text=' + encodeURIComponent(shortText()), '_blank', 'noopener'); return; }
+  else if (act === 'copy') {
+    if (navigator.clipboard) navigator.clipboard.writeText(shortText()).then(() => toast('List copied'));
+    return;
+  }
+  else if (act === 'print') {
+    document.getElementById('printArea').innerHTML = `<h2>College shortlist - MHT CET 2026 CAP Round 1 cutoffs</h2>
+      <table><thead><tr><th>#</th><th>College</th><th>District</th><th>Course</th><th>Category</th><th>Gender</th><th>Seat</th><th>Cutoff</th><th>Choice code</th></tr></thead><tbody>${
+      shortlist.map((s, n) => `<tr><td>${n + 1}</td><td>${esc(s.college_name)}</td><td>${esc(capitalize(s.district))}</td><td>${esc(capitalize(s.course))}</td><td>${esc(s.category)}</td><td>${esc(gLabel(s.gender))}</td><td>${esc(SEAT_LABEL[s.seat_type] || s.seat_type)}</td><td>${s.percentile}</td><td></td></tr>`).join('')}</tbody></table>`;
+    window.print();
+    return;
+  }
+  persistShortlist();
+  openShortlist();
 }
 
 // -------------------------
@@ -193,6 +382,9 @@ function setActiveCourse(course) {
 // Listeners
 // -------------------------
 function setupListeners() {
+  document.getElementById('modalBody').addEventListener('click', shortlistAction);
+  document.getElementById('shortCount').textContent = shortlist.length;
+  document.getElementById('branch').addEventListener('change', populateCourses);
   document.querySelector('.close').addEventListener('click', closeCollegeModal);
   document.getElementById('collegeModal').addEventListener('click', e => {
     if (e.target.id === 'collegeModal') closeCollegeModal();
