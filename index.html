@@ -1,89 +1,67 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>College Finder | MHT CET College Predictor</title>
-  <link rel="icon" type="imgae/png" href="Assets/College.png">
-  <link rel="stylesheet" href="style.css" />
-  <meta name="google-site-verification" content="yh-71o62KoYv-DYmOqUSHqqe1skYpYGv1SrpkGSXJMw" />
-  <!-- Basic SEO -->
-
-<meta name="description" content="Find engineering colleges in Maharashtra based on your MHT CET percentile. Filter by branch, district, category, and gender. Accurate cutoff data for 2025 aspirants." />
-
-<meta name="keywords" content="MHT CET college predictor 2025, CET cutoff Maharashtra, engineering colleges by percentile, CET college finder, MHT CET cutoff list, college predictor India" />
-
-<meta name="author" content="College Finder" />
-
-<!-- Mobile Optimization -->
+<meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-<!-- Open Graph (for WhatsApp / LinkedIn) -->
-<meta property="og:title" content="MHT CET College Predictor 2025" />
-<meta property="og:description" content="Check colleges based on your percentile, category, and branch. Fast and accurate CET predictor." />
+<title>College Finder | MHT CET College Predictor 2026</title>
+<meta name="description" content="Find engineering colleges in Maharashtra from your MHT CET percentile. Filter by branch, district, category and gender using 2026 CAP Round 1 cutoffs." />
+<meta name="keywords" content="MHT CET college predictor 2026, CET cutoff Maharashtra, engineering colleges by percentile, CET college finder" />
+<meta name="author" content="College Finder" />
+<meta name="robots" content="index, follow" />
+<meta name="google-site-verification" content="yh-71o62KoYv-DYmOqUSHqqe1skYpYGv1SrpkGSXJMw" />
+<meta property="og:title" content="MHT CET College Predictor 2026" />
+<meta property="og:description" content="Check colleges by percentile, category and branch." />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://collegefind.netlify.app/" />
 <meta property="og:image" content="https://collegefind.netlify.app/College.png" />
-
-<!-- Twitter Card -->
 <meta name="twitter:card" content="summary_large_image" />
-<meta name="twitter:title" content="MHT CET College Predictor 2025" />
-<meta name="twitter:description" content="Find best colleges based on your percentile instantly." />
-<meta name="twitter:image" content="https://collegefind.netlify.app/College.png" />
-
-<!-- Favicon -->
-<link rel="icon" href="Assets/College.png" />
-
-<!-- Robots -->
-<meta name="robots" content="index, follow" />
+<meta name="theme-color" content="#f5f6f8" />
+<link rel="icon" type="image/png" href="Assets/College.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="style.css" />
 </head>
 <body>
+<header class="hero">
+  <h1>MHT CET College Predictor</h1>
+  <p>Find engineering colleges in Maharashtra using 2026 CAP Round 1 cutoffs. Enter your percentile, then narrow by branch, district and category.</p>
+</header>
 
-  <header>
-    <h1>CET College Predictor</h1>
-    <p>Find colleges based on your percentile</p>
-  </header>
-
-  <button class="filter-toggle" onclick="toggleFilters()">
-  <span class="icon">☰</span>
-  <span>Filters</span>
+<button class="filter-toggle" onclick="toggleFilters()" aria-controls="filters">
+  <span class="icon">☰</span><span>Filters</span>
 </button>
-  <div class="main">
-    
-    <!-- Filters -->
-    <div class="filters">
-      <input type="number" id="percentile" placeholder="Enter Percentile" />
 
-      <input type="text" id="collegeSearch" placeholder="Search College Name (optional)" />
+<main class="main">
+  <aside class="filters" id="filters">
+    <label class="pct-field">Your percentile
+      <input type="number" id="percentile" placeholder="e.g. 92.5" step="0.01" inputmode="decimal" />
+    </label>
+    <input type="text" id="collegeSearch" placeholder="College name (optional)" />
+    <select id="course" aria-label="Course"></select>
+    <select id="district" aria-label="District"></select>
+    <select id="category" aria-label="Category"></select>
+    <select id="gender" aria-label="Gender"></select>
+    <button class="search-btn" onclick="filterData()">Search colleges</button>
+    <a href="Assets/2026ENGG_CAP1_MH_CutOff_V1.pdf" class="download-btn" download>Download cutoff PDF</a>
+  </aside>
 
-      <select id="course"></select>
-      <select id="district"></select>
-      <select id="category"></select>
-      <select id="gender"></select>
+  <section id="results" class="results" aria-live="polite">
+    <p class="empty">Enter your percentile and choose Search colleges. Results show cutoffs from 1 point above to 15 points below your score.</p>
+  </section>
+</main>
 
-      <button onclick="filterData()">Search</button>
-      <a href="Assets/cet 2025.pdf" class="download-btn" download>
-        ⬇ Download PDF
-      </a>
-    </div>
-
-    <!-- Results -->
-    <div id="results" class="results"></div>
-
+<div id="collegeModal" class="modal" role="dialog" aria-modal="true">
+  <div class="modal-content">
+    <button class="close" aria-label="Close">&times;</button>
+    <div id="modalBody"></div>
   </div>
+</div>
 
-  <!-- College Details Modal -->
-  <div id="collegeModal" class="modal">
-    <div class="modal-content">
-      <span class="close">&times;</span>
-      <div id="modalBody"></div>
-    </div>
-  </div>
-
-  <script src="college.js"></script>
-  <footer class="footer">
-  <div class="footer-content">
-          <p>&copy; 2025 Created by <a href="http://stavanlabs.is-a.dev" class="stavan-labs" target="_blank">Stavan Labs</a> . All rights reserved.</p>
-  </div>
+<footer class="footer">
+  <p>&copy; 2026 Created by <a href="http://stavanlabs.is-a.dev" class="stavan-labs" target="_blank" rel="noopener">Stavan Labs</a>. All rights reserved.</p>
 </footer>
+
+<script src="college.js"></script>
 </body>
 </html>

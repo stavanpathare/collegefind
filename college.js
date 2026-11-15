@@ -1,362 +1,207 @@
 let data = [];
-
-// Modal state
 let currentCollegeData = [];
 let currentCourses = [];
 let activeCourse = '';
 
+const GENDER_LABEL = { Gents: 'Gents', Ladies: 'Ladies', G_PWD: 'PWD', G_DEF: 'Defence', G_OF: 'Orphan' };
+const SEAT_LABEL = { HOME: 'Home University', OTHER: 'Other University', STATE: 'State Level' };
+const FIELD_LABEL = { course: 'All courses', district: 'All districts', category: 'All categories', gender: 'All genders' };
+const canHover = window.matchMedia('(hover: hover)').matches;
 
-function capitalize(str) {
-  return str.replace(/\b\w/g, c => c.toUpperCase());
-}
+const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const capitalize = s => s.replace(/\b\w/g, c => c.toUpperCase());
+const normalize = s => s.toLowerCase().trim();
+const normalizeCollege = s => s.toLowerCase().replace(/[.,]/g, '').replace(/\s+/g, ' ').trim();
+const gLabel = g => GENDER_LABEL[g] || g;
+
 function toggleFilters() {
-  const filters = document.querySelector(".filters");
-  if (!filters) return;
-
-  filters.classList.toggle("active");
+  const f = document.querySelector('.filters');
+  if (f) f.classList.toggle('active');
 }
+
 // -------------------------
-// Load Data
+// Load data
 // -------------------------
 async function loadData() {
-  const res = await fetch("Assets/data_2025.json");
-  data = await res.json();
-
-  // Clean data once
-  data = data.map(item => ({
-    ...item,
-    course: normalize(item.course),
-    district: normalize(item.district),
-    category: item.category.trim(),
-    gender: item.gender.trim(),
-    normalizedCollege: normalizeCollege(item.college_name)
-  }));
-
-  populateFilters();
+  try {
+    const res = await fetch('Assets/data_2026.json');
+    data = (await res.json()).map(item => ({
+      ...item,
+      course: normalize(item.course),
+      district: normalize(item.district),
+      category: item.category.trim(),
+      gender: item.gender.trim(),
+      normalizedCollege: normalizeCollege(item.college_name)
+    }));
+    populateFilters();
+  } catch (e) {
+    document.getElementById('results').innerHTML =
+      '<p class="empty">Cutoff data could not be loaded. Check that Assets/data_2026.json exists, then reload.</p>';
+  }
 }
 
-// -------------------------
-// Normalize (VERY IMPORTANT)
-// -------------------------
-function normalize(str) {
-  return str.toLowerCase().trim();
-}
+const getUnique = f => [...new Set(data.map(i => i[f]))].sort();
 
-// -------------------------
-// Normalize College Name for Search
-// -------------------------
-function normalizeCollege(str) {
-  return str.toLowerCase().replace(/[.,]/g, '').replace(/\s+/g, ' ').trim();
-}
-
-// -------------------------
-// Get Unique Values
-// -------------------------
-function getUnique(field) {
-  return [...new Set(data.map(item => item[field]))].sort();
-}
-
-// -------------------------
-// Populate Dropdowns
-// -------------------------
 function populateSelect(id, values) {
-  const select = document.getElementById(id);
-
-  select.innerHTML = `<option value="">Select ${id}</option>`;
-
-  values.forEach(val => {
-    select.innerHTML += `<option value="${val}">${val}</option>`;
-  });
+  const sel = document.getElementById(id);
+  sel.innerHTML = `<option value="">${FIELD_LABEL[id]}</option>` +
+    values.map(v => `<option value="${esc(v)}">${esc(id === 'gender' ? gLabel(v) : id === 'category' ? v : capitalize(v))}</option>`).join('');
 }
 
 function populateFilters() {
-  populateSelect("course", getUnique("course"));
-  populateSelect("district", getUnique("district"));
-  populateSelect("category", getUnique("category"));
-  populateSelect("gender", getUnique("gender"));
+  ['course', 'district', 'category', 'gender'].forEach(id => populateSelect(id, getUnique(id)));
 }
 
 // -------------------------
-// Filter Logic
+// Filter logic (unchanged behaviour)
 // -------------------------
 function filterData() {
+  const pInput = document.getElementById('percentile').value;
+  const percentile = pInput ? parseFloat(pInput) : null;
+  const search = normalizeCollege(document.getElementById('collegeSearch').value);
+  const course = normalize(document.getElementById('course').value);
+  const district = normalize(document.getElementById('district').value);
+  const category = document.getElementById('category').value;
+  const gender = document.getElementById('gender').value;
 
-  // -------------------------
-  // Get Input Values
-  // -------------------------
-  const percentileInput = document.getElementById("percentile").value;
-
-  const percentile = percentileInput
-    ? parseFloat(percentileInput)
-    : null;
-
-  const collegeSearch = document.getElementById("collegeSearch").value;
-
-  const course = normalize(
-    document.getElementById("course").value
-  );
-
-  const district = normalize(
-    document.getElementById("district").value
-  );
-
-  const category =
-    document.getElementById("category").value;
-
-  const gender =
-    document.getElementById("gender").value;
-
-  const normalizedSearch =
-    normalizeCollege(collegeSearch);
-
-  // -------------------------
-  // Filter Data
-  // -------------------------
   let results = data.filter(item => {
-
-    // Convert percentile safely
-    const itemPercentile = Number(item.percentile);
-
-    // Percentile Logic
-    let percentileMatch = true;
-
-    if (percentile !== null && !isNaN(percentile)) {
-
-      // Example:
-      // Input 90
-      // Shows 91 down to 75
-      percentileMatch =
-        itemPercentile <= percentile + 1 &&
-        itemPercentile >= Math.max(0, percentile - 15);
-    }
-
-    return (
-      percentileMatch &&
-
-      (!collegeSearch ||
-        item.normalizedCollege.includes(normalizedSearch)) &&
-
-      (!course ||
-        item.course.includes(course)) &&
-
-      (!district ||
-        item.district.includes(district)) &&
-
-      (!category ||
-        item.category === category) &&
-
-      (!gender ||
-        item.gender === gender)
-    );
+    const p = Number(item.percentile);
+    const pMatch = percentile === null || isNaN(percentile) ||
+      (p <= percentile + 1 && p >= Math.max(0, percentile - 15));
+    return pMatch &&
+      (!search || item.normalizedCollege.includes(search)) &&
+      (!course || item.course.includes(course)) &&
+      (!district || item.district.includes(district)) &&
+      (!category || item.category === category) &&
+      (!gender || item.gender === gender);
   });
 
-  // -------------------------
-  // Sort Highest to Lowest
-  // -------------------------
   results.sort((a, b) => b.percentile - a.percentile);
+  displayResults(results.slice(0, 100));
 
-  // -------------------------
-  // Limit Results
-  // -------------------------
-  results = results.slice(0, 100);
-
-  // -------------------------
-  // Display
-  // -------------------------
-  displayResults(results);
+  if (window.innerWidth <= 1000) {
+    document.querySelector('.filters').classList.remove('active');
+    document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
 }
 
 // -------------------------
-// Display Results
+// Results
 // -------------------------
 function displayResults(results) {
-  const container = document.getElementById("results");
-
-  if (results.length === 0) {
-    container.innerHTML = "<p>No colleges found</p>";
+  const box = document.getElementById('results');
+  if (!results.length) {
+    box.innerHTML = '<p class="empty">No colleges matched. Try a wider district or course, or lower the percentile.</p>';
     return;
   }
+  box.innerHTML = results.map((it, i) => `
+    <article class="card" style="--i:${Math.min(i, 14)}" data-college="${esc(it.college_name)}" tabindex="0">
+      <h3>${esc(it.college_name)}</h3>
+      <p class="course">${esc(capitalize(it.course))}</p>
+      <p class="loc">${esc(capitalize(it.district))}</p>
+      <div class="chips">
+        <span class="chip">${esc(it.category)}</span>
+        <span class="chip">${esc(gLabel(it.gender))}</span>
+        <span class="chip">${esc(SEAT_LABEL[it.seat_type] || it.seat_type)}</span>
+      </div>
+      <div class="percentile">Cutoff <b>${it.percentile}</b></div>
+    </article>`).join('');
 
-  container.innerHTML = results.map(item => `
-    <div class="card">
-      <h3>${item.college_name}</h3>
-      <p><b>${capitalize(item.course)}</b></p>
-      <p>${capitalize(item.district)}</p>
-      <p>${item.category} • ${item.gender}</p>
-      <div class="percentile">Cutoff: ${item.percentile}</div>
-    </div>
-  `).join("");
-
-  // Add click listeners to cards
-  document.querySelectorAll('.card').forEach(card => {
-    card.addEventListener('click', () => openCollegeModal(card));
+  box.querySelectorAll('.card').forEach(card => {
+    const open = () => openCollegeModal(card.dataset.college);
+    card.addEventListener('click', open);
+    card.addEventListener('keydown', e => { if (e.key === 'Enter') open(); });
+    if (canHover) {
+      card.addEventListener('pointermove', e => {
+        const r = card.getBoundingClientRect();
+        card.style.setProperty('--mx', e.clientX - r.left + 'px');
+        card.style.setProperty('--my', e.clientY - r.top + 'px');
+      });
+    }
   });
 }
 
 // -------------------------
-// Modal Functions
+// Modal
 // -------------------------
-function openCollegeModal(card) {
-  const collegeName = card.querySelector('h3').textContent;
-  currentCollegeData = data.filter(item => item.college_name === collegeName);
-  currentCourses = [...new Set(currentCollegeData.map(item => item.course))].sort();
+function openCollegeModal(collegeName) {
+  currentCollegeData = data.filter(i => i.college_name === collegeName);
+  currentCourses = [...new Set(currentCollegeData.map(i => i.course))].sort();
   activeCourse = currentCourses[0] || '';
 
-  // Calculate overall stats
-  const allPercentiles = currentCollegeData.map(item => item.percentile);
-  const highestOverall = Math.max(...allPercentiles);
-  const lowestOverall = Math.min(...allPercentiles);
-  const highestItem = currentCollegeData.find(item => item.percentile === highestOverall);
-  const lowestItem = currentCollegeData.find(item => item.percentile === lowestOverall);
-  const highestBranch = highestItem ? highestItem.course : 'N/A';
-  const lowestBranch = lowestItem ? lowestItem.course : 'N/A';
+  const ps = currentCollegeData.map(i => i.percentile);
+  const hi = Math.max(...ps), lo = Math.min(...ps);
+  const hiB = currentCollegeData.find(i => i.percentile === hi).course;
+  const loB = currentCollegeData.find(i => i.percentile === lo).course;
 
-  const modalBody = document.getElementById('modalBody');
-
-  // Section A: College Info
-  const district = currentCollegeData[0].district;
-  const totalCourses = currentCourses.length;
-  const totalEntries = currentCollegeData.length;
-
-  modalBody.innerHTML = `
-    <div id="collegeInfo" class="modal-section">
-      <h2>${collegeName}</h2>
-      <p><strong>District:</strong> ${capitalize(district)}</p>
-      <p><strong>Total Courses:</strong> ${totalCourses}</p>
-      <p><strong>Total Cutoff Entries:</strong> ${totalEntries}</p>
+  document.getElementById('modalBody').innerHTML = `
+    <div class="modal-section">
+      <h2>${esc(collegeName)}</h2>
+      <p><strong>District:</strong> ${esc(capitalize(currentCollegeData[0].district))}</p>
+      <p><strong>Courses:</strong> ${currentCourses.length} &nbsp; <strong>Cutoff entries:</strong> ${currentCollegeData.length}</p>
+      <p><strong>Highest cutoff:</strong> ${hi} (${esc(capitalize(hiB))}) &nbsp; <strong>Lowest:</strong> ${lo} (${esc(capitalize(loB))})</p>
     </div>
     <div id="courseTabs" class="modal-section"></div>
-    <div id="courseDetails" class="modal-section"></div>
-    <div id="collegeStats" class="modal-section">
-      <h3>College Statistics</h3>
-      <p><strong>Highest Cutoff:</strong> ${highestOverall} (${capitalize(highestBranch)})</p>
-      <p><strong>Lowest Cutoff:</strong> ${lowestOverall} (${capitalize(lowestBranch)})</p>
-    </div>
-  `;
+    <div id="courseDetails" class="modal-section"></div>`;
 
   renderCourseTabs();
-  if (activeCourse) {
-    renderCourseDetails(activeCourse);
-  }
-
-  // Show modal
-  const modal = document.getElementById('collegeModal');
-  modal.style.display = 'block';
+  if (activeCourse) renderCourseDetails(activeCourse);
+  document.getElementById('collegeModal').style.display = 'block';
   document.body.style.overflow = 'hidden';
 }
 
 function closeCollegeModal() {
-  const modal = document.getElementById('collegeModal');
-  modal.style.display = 'none';
+  document.getElementById('collegeModal').style.display = 'none';
   document.body.style.overflow = 'auto';
-  // Reset modal state
-  currentCollegeData = [];
-  currentCourses = [];
-  activeCourse = '';
+  currentCollegeData = []; currentCourses = []; activeCourse = '';
 }
 
-// -------------------------
-// Course Rendering Functions
-// -------------------------
 function renderCourseTabs() {
-  const tabsContainer = document.getElementById('courseTabs');
-  if (!tabsContainer) return;
-
-  tabsContainer.innerHTML = `
-    <h3>Select Course</h3>
-    <div class="course-pills">
-      ${currentCourses.map(course => `
-        <button class="course-pill ${course === activeCourse ? 'active' : ''}" onclick="setActiveCourse('${course}')">
-          ${capitalize(course)}
-        </button>
-      `).join('')}
-    </div>
-  `;
+  const box = document.getElementById('courseTabs');
+  if (!box) return;
+  box.innerHTML = `<h3>Choose a course</h3><div class="course-pills">${currentCourses.map(c =>
+    `<button class="course-pill ${c === activeCourse ? 'active' : ''}" data-course="${esc(c)}">${esc(capitalize(c))}</button>`).join('')}</div>`;
+  box.querySelectorAll('.course-pill').forEach(b => b.addEventListener('click', () => setActiveCourse(b.dataset.course)));
 }
 
 function renderCourseDetails(course) {
-  const detailsContainer = document.getElementById('courseDetails');
-  if (!detailsContainer) return;
-
-  const courseData = currentCollegeData.filter(item => item.course === course);
-
-  if (courseData.length === 0) {
-    detailsContainer.innerHTML = '<p>No data available for this course.</p>';
-    return;
-  }
-
-  // Sort by percentile descending
-  courseData.sort((a, b) => b.percentile - a.percentile);
-
-  const tableRows = courseData.map(item => `
-    <tr>
-      <td>${item.category}</td>
-      <td>${item.gender}</td>
-      <td>${item.percentile}</td>
-      <td>${item.seat_type}</td>
-    </tr>
-  `).join('');
-
-  // Stats for this course
-  const percentiles = courseData.map(item => item.percentile);
-  const highestCutoff = Math.max(...percentiles);
-  const lowestCutoff = Math.min(...percentiles);
-  const totalCategories = new Set(courseData.map(item => item.category)).size;
-
-  detailsContainer.innerHTML = `
-    <h3>${capitalize(course)} Details</h3>
+  const box = document.getElementById('courseDetails');
+  if (!box) return;
+  const rows = currentCollegeData.filter(i => i.course === course).sort((a, b) => b.percentile - a.percentile);
+  if (!rows.length) { box.innerHTML = '<p>No data available for this course.</p>'; return; }
+  const ps = rows.map(i => i.percentile);
+  box.innerHTML = `
+    <h3>${esc(capitalize(course))}</h3>
     <div class="course-stats">
-      <p><strong>Highest Cutoff:</strong> ${highestCutoff}</p>
-      <p><strong>Lowest Cutoff:</strong> ${lowestCutoff}</p>
-      <p><strong>Total Categories:</strong> ${totalCategories}</p>
+      <p><strong>Highest:</strong> ${Math.max(...ps)}</p>
+      <p><strong>Lowest:</strong> ${Math.min(...ps)}</p>
+      <p><strong>Categories:</strong> ${new Set(rows.map(i => i.category)).size}</p>
     </div>
-    <div class="table-container">
-      <table>
-        <thead>
-          <tr>
-            <th>Category</th>
-            <th>Gender</th>
-            <th>Percentile</th>
-            <th>Seat Type</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${tableRows}
-        </tbody>
-      </table>
-    </div>
-  `;
+    <div class="table-container"><table>
+      <thead><tr><th>Category</th><th>Gender</th><th>Percentile</th><th>Seat type</th></tr></thead>
+      <tbody>${rows.map(i => `<tr><td>${esc(i.category)}</td><td>${esc(gLabel(i.gender))}</td><td>${i.percentile}</td><td>${esc(SEAT_LABEL[i.seat_type] || i.seat_type)}</td></tr>`).join('')}</tbody>
+    </table></div>`;
 }
 
 function setActiveCourse(course) {
   activeCourse = course;
-  renderCourseTabs(); // Re-render to update active class
+  renderCourseTabs();
   renderCourseDetails(course);
 }
 
 // -------------------------
-// Event Listeners for Modal
+// Listeners
 // -------------------------
-function setupModalListeners() {
-  // Close button
+function setupListeners() {
   document.querySelector('.close').addEventListener('click', closeCollegeModal);
-
-  // Click outside modal
-  window.addEventListener('click', (event) => {
-    const modal = document.getElementById('collegeModal');
-    if (event.target === modal) {
-      closeCollegeModal();
-    }
+  document.getElementById('collegeModal').addEventListener('click', e => {
+    if (e.target.id === 'collegeModal') closeCollegeModal();
   });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeCollegeModal(); });
+  document.querySelectorAll('.filters input').forEach(i =>
+    i.addEventListener('keydown', e => { if (e.key === 'Enter') filterData(); }));
 
-  // Escape key
-  document.addEventListener('keydown', (event) => {
-    if (event.key === 'Escape') {
-      closeCollegeModal();
-    }
-  });
 }
 
-// -------------------------
 loadData();
-setupModalListeners();
+setupListeners();
